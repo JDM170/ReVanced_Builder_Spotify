@@ -1,7 +1,6 @@
 ## Automatically generated release notes
 
-* YouTube YouTubeTag;
+* Spotify SpotifyTag;
 * ReVanced CLI CLITag;
 * ReVanced Patches PatchesTag;
-* ReVanced MicroG MicroGTag;
 * Azul Zulu ZuluTag.

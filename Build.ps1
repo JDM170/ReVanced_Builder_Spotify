@@ -34,40 +34,13 @@ if (-not (Test-Path -Path "$CurrentFolder\ReVanced"))
     New-Item -Path "$CurrentFolder\ReVanced" -ItemType Directory -Force
 }
 
-# Get the latest supported YouTube version to patch
-# https://api.revanced.app
-$Parameters = @{
-    Uri             = "https://api.revanced.app/v4/patches/list"
-    UseBasicParsing = $true
-}
-$JSON = (Invoke-Webrequest @Parameters).Content | ConvertFrom-Json
-$versions = ($JSON | Where-Object -FilterScript {$_.name -eq "Video ads"})
-$LatestSupported = $versions.compatiblePackages.'com.google.android.youtube' | Sort-Object -Descending -Unique | Select-Object -First 1
+$LatestSupported = "9-0-44-478"
 
 Write-Verbose -Message "" -Verbose
-Write-Verbose -Message "Downloading the latest supported YouTube apk" -Verbose
-
+Write-Verbose -Message "Downloading the latest supported Spotify apk" -Verbose
 # We need a NON-bundle version
-<#
-# https://apkpure.net/ru/youtube/com.google.android.youtube/versions
-$Parameters = @{
-    Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-$URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {$_ -match "APK/com.google.android.youtube"} | Select-Object -Index 1
-
-$Parameters = @{
-    Uri             = $URL
-    OutFile         = "$CurrentFolder\ReVanced\youtube.apk"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-Invoke-Webrequest @Parameters
-#>
-
-# https://www.apkmirror.com/apk/google-inc/youtube/
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported.replace('.', '-'))-release/"
+# https://www.apkmirror.com/apk/spotify-ab/spotify-music-podcasts/
+$apkMirrorLink = "https://www.apkmirror.com/apk/spotify-ab/spotify-music-podcasts/spotify-music-and-podcasts-$LatestSupported-release/"
 $Parameters = @{
     Uri             = $apkMirrorLink
     UseBasicParsing = $false # Disabled
@@ -107,7 +80,7 @@ $URL_Part = $URL_Part.Replace("&amp;", "&")
 # Finally, get the real link
 $Parameters = @{
     Uri             = "https://www.apkmirror.com$URL_Part"
-    OutFile         = "$CurrentFolder\ReVanced\youtube.apk"
+    OutFile         = "$CurrentFolder\ReVanced\spotify.apk"
     UseBasicParsing = $true
     Verbose         = $true
 }
@@ -147,30 +120,6 @@ $Parameters = @{
 }
 Invoke-RestMethod @Parameters
 
-Write-Verbose -Message "" -Verbose
-Write-Verbose -Message "Downloading ReVanced GmsCore" -Verbose
-# https://github.com/ReVanced/GmsCore
-$Parameters = @{
-    Uri             = "https://api.github.com/repos/ReVanced/GmsCore/releases/latest"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-$URL = (Invoke-RestMethod @Parameters).assets
-foreach($url in $URL) {
-    if ($url.name.Contains("-hw-")) {
-        $url.name = "microg-hw.apk"
-    } else {
-        $url.name = "microg.apk"
-    }
-    $Parameters = @{
-        Uri             = $url.browser_download_url
-        Outfile         = "$CurrentFolder\ReVanced\$($url.name)"
-        UseBasicParsing = $true
-        Verbose         = $true
-    }
-    Invoke-RestMethod @Parameters
-}
-
 # Sometimes older version of zulu-jdk causes conflict, so remove older version before proceeding.
 if (Test-Path -Path "$CurrentFolder\ReVanced\jdk")
 {
@@ -209,14 +158,11 @@ Remove-Item -Path "$CurrentFolder\ReVanced\jdk_windows-x64_bin.zip" -Force
 & "$CurrentFolder\ReVanced\jdk\zulu*win_x64\bin\java.exe" `
 -jar "$CurrentFolder\ReVanced\revanced-cli.jar" patch `
 --patches "$CurrentFolder\ReVanced\revanced-patches.rvp" `
---disable "Always repeat" `
---disable "Disable auto captions" `
---disable "Hide timestamp" `
---disable "Hide seekbar" `
+--disable "Custom theme" `
 --purge `
 --temporary-files-path "$CurrentFolder\ReVanced\Temp" `
---out "$CurrentFolder\ReVanced\revanced.apk" `
-"$CurrentFolder\ReVanced\youtube.apk"
+--out "$CurrentFolder\ReVanced\revanced_spotify.apk" `
+"$CurrentFolder\ReVanced\spotify.apk"
 
 # Open working directory with builded files
 # Invoke-Item -Path "$CurrentFolder\ReVanced"
@@ -229,8 +175,8 @@ $Files = @(
     "$CurrentFolder\ReVanced\jdk",
     "$CurrentFolder\ReVanced\revanced-cli.jar",
     "$CurrentFolder\ReVanced\revanced-patches.rvp",
-    "$CurrentFolder\ReVanced\youtube.apk"
+    "$CurrentFolder\ReVanced\spotify.apk"
 )
 Remove-Item -Path $Files -Recurse -Force
 
-Write-Warning -Message "Latest available revanced.apk & microg.apk are ready in `"$CurrentFolder\ReVanced`""
+Write-Warning -Message "Latest available revanced_spotify.apk & microg.apk are ready in `"$CurrentFolder\ReVanced`""

@@ -1,31 +1,5 @@
-# Get the latest supported YouTube version to patch
-# https://api.revanced.app/docs/swagger
-$Parameters = @{
-    Uri             = "https://api.revanced.app/v4/patches/list"
-    UseBasicParsing = $true
-}
-$JSON = (Invoke-Webrequest @Parameters).Content | ConvertFrom-Json
-$versions = ($JSON | Where-Object -FilterScript {$_.name -eq "Video ads"})
-$LatestSupported = $versions.compatiblePackages.'com.google.android.youtube' | Sort-Object -Descending -Unique | Select-Object -First 1
 
-# We need a NON-bundle version
-# https://apkpure.net/ru/youtube/com.google.android.youtube/versions
-<#
-$Parameters = @{
-    Uri             = "https://apkpure.net/youtube/com.google.android.youtube/download/$($LatestSupported)"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-$URL = (Invoke-Webrequest @Parameters).Links.href | Where-Object -FilterScript {$_ -match "APK/com.google.android.youtube"} | Select-Object -Index 1
-
-$Parameters = @{
-    Uri             = $URL
-    OutFile         = "Temp\youtube.apk"
-    UseBasicParsing = $true
-    Verbose         = $true
-}
-Invoke-Webrequest @Parameters
-#>
+$LatestSupported = "9-0-44-478"
 
 $AngleSharpAssemblyPath = (Get-ChildItem -Path (Split-Path -Path (Get-Package -Name AngleSharp).Source) -Filter "*.dll" -Recurse | Where-Object -FilterScript {$_ -match "standard"} | Select-Object -Last 1).FullName
 Add-Type -Path $AngleSharpAssemblyPath
@@ -33,9 +7,10 @@ Add-Type -Path $AngleSharpAssemblyPath
 # Create parser object
 $angleparser = New-Object -TypeName AngleSharp.Html.Parser.HtmlParser
 
+# We need a NON-bundle version
 # Trying to find correct APK link (not BUNDLE)
-# https://www.apkmirror.com/apk/google-inc/youtube/
-$apkMirrorLink = "https://www.apkmirror.com/apk/google-inc/youtube/youtube-$($LatestSupported.replace('.', '-'))-release/"
+# https://www.apkmirror.com/apk/spotify-ab/spotify-music-podcasts/
+$apkMirrorLink = "https://www.apkmirror.com/apk/spotify-ab/spotify-music-podcasts/spotify-music-and-podcasts-$LatestSupported-release/"
 $Parameters = @{
     Uri             = $apkMirrorLink
     UseBasicParsing = $false # Disabled
@@ -77,7 +52,7 @@ $Key = ($Parsed.All | Where-Object -FilterScript { $_.InnerHtml -eq "here" }).Se
 # Finally, get the real link
 $Parameters = @{
     Uri             = "https://www.apkmirror.com/wp-content/themes/APKMirror/download.php$Key"
-    OutFile         = "Temp\youtube.apk"
+    OutFile         = "Temp\spotify.apk"
     UseBasicParsing = $true
     Verbose         = $true
 }
