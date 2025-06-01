@@ -1,5 +1,5 @@
 
-$LatestSupported = "9-0-44-478"
+$LatestSupported = "9.0.48.380".Replace(".", "-")
 
 $AngleSharpAssemblyPath = (Get-ChildItem -Path (Split-Path -Path (Get-Package -Name AngleSharp).Source) -Filter "*.dll" -Recurse | Where-Object -FilterScript {$_ -match "standard"} | Select-Object -Last 1).FullName
 Add-Type -Path $AngleSharpAssemblyPath

@@ -34,7 +34,7 @@ if (-not (Test-Path -Path "$CurrentFolder\ReVanced"))
     New-Item -Path "$CurrentFolder\ReVanced" -ItemType Directory -Force
 }
 
-$LatestSupported = "9-0-44-478"
+$LatestSupported = "9.0.48.380".Replace(".", "-")
 
 Write-Verbose -Message "" -Verbose
 Write-Verbose -Message "Downloading the latest supported Spotify apk" -Verbose
